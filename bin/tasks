@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+$LOAD_PATH << File.expand_path(File.dirname(__FILE__) + '/../lib')
+
+require 'task_manager'
+require 'task_manager/version'
+require 'task_manager/task'
+
+command = ARGV.shift
+
+
+if ARGV.empty?
+  TaskManager::Writer.write_help
+end
+
+unless File.exist?('tasks.db')
+  TaskManager::Database.new('tasks.db')
+end
+
+case command
+  when 'new'
+    name = ARGV.shift
+    data = TaskManager::Task.new(name)
+    TaskManager::Database.save('tasks.db', 'tasks', data)
+
+  when 'show'
+    TaskManager::Database.show('tasks.db', 'tasks')
+
+  when 'delete'
+    task = ARGV.shift
+    TaskManager::Database.delete('tasks.db', 'tasks', task)
+
+  when 'mark_done'
+    task = ARGV.shift
+    TaskManager::Database.update('tasks.db', 'tasks', task)
+
+  when 'drop'
+    TaskManager::Database.drop('tasks.db')
+
+  when 'help'
+    TaskManager::Writer.write_help
+end
